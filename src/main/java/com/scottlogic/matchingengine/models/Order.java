@@ -21,6 +21,14 @@ public class Order {
         this.timestamp = timestamp;
     }
 
+    public Order(int size, int price, Action action) {
+        this.size = size;
+        this.price = price;
+        this.action = action;
+
+    }
+
+
     public int getId() {
         return id;
     }
@@ -78,5 +86,20 @@ public class Order {
                 ", account=" + account +
                 ", timestamp=" + timestamp +
                 '}';
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        Order order = (Order) obj;
+        if (order.getId() == this.getId()
+                && order.getSize() == this.getSize()
+                && order.price == this.price
+                && order.action == this.action) {
+            return true;
+        } else {
+            return false;
+
+        }
     }
 }

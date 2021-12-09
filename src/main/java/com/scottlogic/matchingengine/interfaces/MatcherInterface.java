@@ -2,6 +2,8 @@ package com.scottlogic.matchingengine.interfaces;
 
 import com.scottlogic.matchingengine.models.Account;
 import com.scottlogic.matchingengine.models.Order;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,14 +20,14 @@ public interface MatcherInterface {
      * @param orderList
      * @return
      */
-    public HashMap<Account, Order> aggregateOrderList(HashMap<Account, Order> orderList);
+    public ArrayList<Order> aggregateMap(HashMap<Account, Order> orderList);
 
     /**
      *
-     * @param orderList
+     * @param
      * @return
      */
-    public HashMap<Account, Order> cumulateList(HashMap<Account, Order> orderList);
+    public ArrayList<Order> cumulateList(ArrayList<Order> aggList);
 
     /**
      *
@@ -40,6 +42,7 @@ public interface MatcherInterface {
      * @param orderOne
      * @param orderTwo
      */
-    public void addToTrades(Order orderOne, Order orderTwo);
+    public void match(Order orderOne, Order orderTwo);
+
 
 }

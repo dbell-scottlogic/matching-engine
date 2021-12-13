@@ -1,6 +1,4 @@
-package com.scottlogic.matchingengine.models;
-
-import java.sql.Timestamp;
+package com.scottlogic.matchingengine.entities;
 
 public class CumulateOrder {
 

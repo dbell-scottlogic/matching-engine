@@ -1,7 +1,7 @@
 package com.scottlogic.matchingengine;
 
 import com.scottlogic.matchingengine.interfaces.MatcherInterface;
-import com.scottlogic.matchingengine.models.*;
+import com.scottlogic.matchingengine.entities.*;
 import java.sql.Timestamp;
 import java.util.*;
 

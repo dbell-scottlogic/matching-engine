@@ -1,12 +1,11 @@
 package com.scottlogic.matchingengine;
 
-import com.scottlogic.matchingengine.models.*;
+import com.scottlogic.matchingengine.entities.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -82,7 +81,6 @@ class MatchingEngineApplicationTests {
 		matcher.processOrder(sellOrder);
 		matcher.processOrder(buyOrder);
 		Order expectedBuyOrder = new Order(1, 5, 10, Action.BUY, buyAccount, new Timestamp(date.getTime()));
-		System.out.println(matcher.buyMap);
 		assertTrue("Buy list has size 5 left over at price 10", matcher.buyMap.containsValue(expectedBuyOrder));
 		assertTrue("Sell list is empty", matcher.sellMap.isEmpty());
 		assertEquals("Buy map has length of 1", 1, matcher.buyMap.size());
@@ -152,7 +150,6 @@ class MatchingEngineApplicationTests {
 		expectedList.add(expOrder1);
 
 		ArrayList<CumulateOrder> cumulatedList = matcher.cumulateList(temporaryList);
-		System.out.println(cumulatedList);
 		assertTrue("Temp map contains cumulative values as defined", cumulatedList.containsAll(expectedList));
 
 	}

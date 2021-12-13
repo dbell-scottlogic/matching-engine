@@ -1,4 +1,4 @@
-package com.scottlogic.matchingengine.models;
+package com.scottlogic.matchingengine.entities;
 
 public class Account {
 

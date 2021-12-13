@@ -1,8 +1,8 @@
 package com.scottlogic.matchingengine.interfaces;
 
-import com.scottlogic.matchingengine.models.Account;
-import com.scottlogic.matchingengine.models.CumulateOrder;
-import com.scottlogic.matchingengine.models.Order;
+import com.scottlogic.matchingengine.entities.Account;
+import com.scottlogic.matchingengine.entities.CumulateOrder;
+import com.scottlogic.matchingengine.entities.Order;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

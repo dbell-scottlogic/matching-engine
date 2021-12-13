@@ -1,6 +1,5 @@
 package com.scottlogic.matchingengine.models;
 
-import java.sql.Time;
 import java.sql.Timestamp;
 
 public class Order {
@@ -77,6 +76,14 @@ public class Order {
         this.timestamp = timestamp;
     }
 
+    public void setTimestampNull(){
+        this.timestamp = null;
+    }
+
+    public void setAccountNull(){
+        this.account = null;
+    }
+
     @Override
     public String toString() {
         return "Order{" +
@@ -92,14 +99,9 @@ public class Order {
     @Override
     public boolean equals(Object obj) {
         Order order = (Order) obj;
-        if (order.getId() == this.getId()
+        return order.getId() == this.getId()
                 && order.getSize() == this.getSize()
                 && order.price == this.price
-                && order.action == this.action) {
-            return true;
-        } else {
-            return false;
-
-        }
+                && order.action == this.action;
     }
 }

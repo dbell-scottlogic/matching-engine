@@ -1,25 +1,10 @@
 package com.scottlogic.matchingengine;
 
 import com.scottlogic.matchingengine.interfaces.MatcherInterface;
-import com.scottlogic.matchingengine.models.Account;
-import com.scottlogic.matchingengine.models.Action;
-import com.scottlogic.matchingengine.models.Order;
-import com.scottlogic.matchingengine.models.Trade;
-
+import com.scottlogic.matchingengine.models.*;
 import java.sql.Timestamp;
 import java.util.*;
 
-//finalSize is less than zero, entry quan is greater than order quan
-//For buy order, this means add to buy list
-//For sell order, this means partial match, add ress of sell quan to sell list
-
-//if final size is greater than zero, entry quan is less than order quan
-//For buy order,  this means partial match
-//For sell , this means add to sell list
-
-//if final size is zero, entry quan is equal to order quan
-//For buy, match
-//For sell match
 public class Matcher implements MatcherInterface {
 
     public HashMap<Account, Order> buyMap = new HashMap<>();
@@ -29,29 +14,31 @@ public class Matcher implements MatcherInterface {
     public ArrayList<Order> aggBuyList = new ArrayList<>();
     public ArrayList<Order> aggSellList = new ArrayList<>();
 
-    public ArrayList<Order> cumulatedBuyList = new ArrayList<>();
-    public ArrayList<Order> cumulatedSellList = new ArrayList<>();
+    public ArrayList<CumulateOrder> cumulatedBuyList = new ArrayList<>();
+    public ArrayList<CumulateOrder> cumulatedSellList = new ArrayList<>();
 
     @Override
     public void processOrder(Order order) {
+
         HashMap<Account, Order> opposingMap = (order.getAction().equals(Action.BUY) ? sellMap : buyMap);
         HashMap<Account, Order> map = (order.getAction().equals(Action.BUY) ? buyMap : sellMap);
 
         for (Map.Entry<Account, Order> entry : opposingMap.entrySet()) {
-            if (evaluateOperator(order, entry)) {
-                int finalSize = order.getSize() - entry.getValue().getSize();
-                if (finalSize < 0) {
 
-                    if (order.getAction().equals(Action.BUY)) {
-                        buyMap.put(order.getAccount(), order);
+            if (evaluateOperator(order, entry)) {
+                int size = entry.getValue().getSize() - order.getSize();
+                if (size > 0) {
+
+                    if (order.getAction().equals(Action.BUY) && sellMap.isEmpty()) {
+                        addToList(order);
                     } else {
-                        partiallyMatch(order, entry.getValue());
+                        partiallyMatch(entry.getValue(), order);
                     }
 
-                } else if (finalSize > 0) {
+                } else if (size < 0) {
 
-                    if (order.getAction().equals(Action.SELL)) {
-                        sellMap.put(order.getAccount(), order);
+                    if (order.getAction().equals(Action.SELL) && buyMap.isEmpty()) {
+                        addToList(order);
                     } else {
                         partiallyMatch(order, entry.getValue());
                     }
@@ -60,9 +47,11 @@ public class Matcher implements MatcherInterface {
 
                 }
 
+
             } else {
                 addToList(order);
             }
+
         }
 
         if (opposingMap.isEmpty()) {
@@ -72,13 +61,15 @@ public class Matcher implements MatcherInterface {
         aggBuyList = aggregateMap(buyMap);
         aggSellList = aggregateMap(sellMap);
 
-        //Need to fix this so that either of them dont run if list is of length 0
-//        cumulatedBuyList = cumulateList(aggBuyList);
-//        cumulatedSellList = cumulateList(aggSellList);
+        if (aggBuyList.size() > 0) {
+            cumulatedBuyList = cumulateList(aggBuyList);
+        }
 
-        //cumulate lists
+        if (aggSellList.size() > 0) {
+            cumulatedSellList = cumulateList(aggSellList);
+        }
+
     }
-
 
     public void addToList(Order order) {
         if (order.getAction().equals(Action.BUY)) {
@@ -88,15 +79,22 @@ public class Matcher implements MatcherInterface {
         }
     }
 
-    public void partiallyMatch(Order order, Order entry) {
+    public void partiallyMatch(Order entry, Order order) {
 
         HashMap<Account, Order> map = (order.getAction().equals(Action.BUY) ? buyMap : sellMap);
         HashMap<Account, Order> opposingMap = (order.getAction().equals(Action.BUY) ? sellMap : buyMap);
 
-        int finalSize = order.getSize() - entry.getSize();
-        order.setSize(finalSize);
-        map.remove(entry.getAccount(), entry);
-        opposingMap.put(order.getAccount(), order);
+        entry.setSize(Math.abs(order.getSize() - entry.getSize()));
+
+        //Remove consumed trade from its list
+        map.remove(order.getAccount(), order);
+        opposingMap.put(entry.getAccount(), entry);
+
+        //Add to trade list the consumed Trade and Order
+        Order buyOrder = (order.getAction().equals(Action.BUY) ? order : entry);
+        Order sellOrder = (order.getAction().equals(Action.SELL) ? order : entry);
+        Trade trade = new Trade(order.getPrice(), buyOrder, sellOrder, buyOrder.getAccount(), sellOrder.getAccount(), new Timestamp(new Date().getTime()));
+        tradeList.add(trade);
     }
 
     public void match(Order order, Order entry) {
@@ -126,7 +124,9 @@ public class Matcher implements MatcherInterface {
     @Override
     public ArrayList<Order> aggregateMap(HashMap<Account, Order> map) {
 
-        Collection<Order> values = map.values();
+        HashMap<Account, Order> mapDeepCopy = (HashMap<Account, Order>) map.clone();
+
+        Collection<Order> values = mapDeepCopy.values();
         ArrayList<Order> orders = new ArrayList<>(values);
 
 
@@ -143,24 +143,23 @@ public class Matcher implements MatcherInterface {
             }
         }
 
-
         return orders;
     }
 
     @Override
-    public ArrayList<Order> cumulateList(ArrayList<Order> aggList) {
+    public ArrayList<CumulateOrder> cumulateList(ArrayList<Order> aggList) {
 
         aggList.sort(Comparator.comparing(Order::getSize));
+        ArrayList<CumulateOrder> cumulateOrderArrayList = new ArrayList<>();
 
-        for (int i = 0; i < aggList.size() - 1; i++) {
-            aggList.get(i + 1).setSize(aggList.get(i).getSize() + aggList.get(i + 1).getSize());
-            aggList.get(i).setAccount(null);
-            aggList.get(i).setTimestamp(null);
+        for (Order order : aggList) {
+            CumulateOrder cumulateOrder = new CumulateOrder(order.getSize(), order.getPrice(), order.getAction());
+            cumulateOrderArrayList.add(cumulateOrder);
         }
 
-        aggList.get(aggList.size() - 1).setAccount(null);
-        aggList.get(aggList.size() - 1).setTimestamp(null);
-
-        return aggList;
+        for (int i = 0; i < cumulateOrderArrayList.size() - 1; i++) {
+            cumulateOrderArrayList.get(i + 1).setSize(cumulateOrderArrayList.get(i).getSize() + cumulateOrderArrayList.get(i + 1).getSize());
+        }
+        return cumulateOrderArrayList;
     }
 }

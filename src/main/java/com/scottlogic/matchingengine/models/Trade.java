@@ -11,7 +11,7 @@ public class Trade {
     private Account sellAccount;
     private Timestamp timestamp;
 
-    public Trade(int price, Order buyOrder, Order sellOrder, Account buyAccount, Account sellAccount, Timestamp timestamp) {
+    public Trade(int price,Order buyOrder, Order sellOrder, Account buyAccount, Account sellAccount, Timestamp timestamp) {
         this.price = price;
         this.buyOrder = buyOrder;
         this.sellOrder = sellOrder;
@@ -19,7 +19,6 @@ public class Trade {
         this.sellAccount = sellAccount;
         this.timestamp = timestamp;
     }
-
 
 
     public int getPrice() {
@@ -70,6 +69,7 @@ public class Trade {
         this.sellOrder = sellOrder;
     }
 
+
     @Override
     public String toString() {
         return "Trade{" +
@@ -80,5 +80,20 @@ public class Trade {
                 ", sellAccount=" + sellAccount +
                 ", timestamp=" + timestamp +
                 '}';
+
+    }
+
+
+
+    @Override
+    public boolean equals(Object obj) {
+        Trade trade = (Trade) obj;
+        return trade.price == this.price
+                && trade.buyOrder == this.buyOrder
+                && trade.sellOrder == this.sellOrder
+                && trade.buyAccount == this.buyAccount
+                && trade.sellAccount == this.sellAccount
+                && trade.timestamp == this.timestamp;
     }
 }
+

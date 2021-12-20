@@ -1,18 +1,40 @@
 package com.scottlogic.matchingengine.entities;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Past;
+import javax.validation.constraints.Positive;
+import java.io.Serializable;
 import java.sql.Timestamp;
 
-public class Order {
 
-    private int id;
+public class Order implements Serializable {
+
+    @NotNull
+    @Positive
+    private int orderId;
+
+    @NotNull
+    @Positive
     private int size;
+
+    @NotNull
+    @Positive
     private int price;
+
+    @NotNull
     private Action action;
+
+    @NotNull
     private Account account;
+
+    @NotNull
     private Timestamp timestamp;
 
-    public Order(int id, int size, int price, Action action, Account account, Timestamp timestamp) {
-        this.id = id;
+    public Order(){}
+
+    public Order(int orderId, int size, int price, Action action, Account account, Timestamp timestamp) {
+        this.orderId = orderId;
         this.size = size;
         this.price = price;
         this.action = action;
@@ -27,13 +49,21 @@ public class Order {
 
     }
 
+    public Order(int size, int price, Action action , Account account, Timestamp timestamp ) {
+        this.size = size;
+        this.price = price;
+        this.action = action;
+        this.account = account;
+        this.timestamp = timestamp;
 
-    public int getId() {
-        return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public int getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(int orderId) {
+        this.orderId = orderId;
     }
 
     public int getSize() {
@@ -95,11 +125,12 @@ public class Order {
                 '}';
     }
 
+    
 
     @Override
     public boolean equals(Object obj) {
         Order order = (Order) obj;
-        return order.getId() == this.getId()
+        return order.getOrderId() == this.getOrderId()
                 && order.getSize() == this.getSize()
                 && order.price == this.price
                 && order.action == this.action;

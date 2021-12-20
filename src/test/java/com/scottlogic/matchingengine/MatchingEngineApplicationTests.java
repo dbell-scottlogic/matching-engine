@@ -53,7 +53,9 @@ class MatchingEngineApplicationTests {
 		Order sellOrder = new Order(2, 19, 10, Action.SELL, sellAccount, new Timestamp(date.getTime()));
 		matcher.processOrder(buyOrder);
 		matcher.processOrder(sellOrder);
+
 		assertEquals("Trade List of length 1", 1, matcher.tradeList.size());
+
 	}
 
 	@Test
@@ -81,11 +83,43 @@ class MatchingEngineApplicationTests {
 		matcher.processOrder(sellOrder);
 		matcher.processOrder(buyOrder);
 		Order expectedBuyOrder = new Order(1, 5, 10, Action.BUY, buyAccount, new Timestamp(date.getTime()));
-		assertTrue("Buy list has size 5 left over at price 10", matcher.buyMap.containsValue(expectedBuyOrder));
+		assertTrue("Buy list has size 5 left over at price 10", matcher.buyMap.contains(expectedBuyOrder));
 		assertTrue("Sell list is empty", matcher.sellMap.isEmpty());
 		assertEquals("Buy map has length of 1", 1, matcher.buyMap.size());
 		assertEquals("Trade list should have length 1", 1, matcher.tradeList.size());
 
+	}
+
+	@Test
+	void aggSellListShouldReduce(){
+		Order order1 = new Order(1, 10, 10, Action.SELL, new Account(1, "Test"), new Timestamp(date.getTime()));
+		Order order2 = new Order(2, 10, 10, Action.SELL, new Account(1, "Test"), new Timestamp(date.getTime()));
+		Order order3 = new Order(3, 10, 10, Action.SELL, new Account(1, "Test"), new Timestamp(date.getTime()));
+
+		matcher.processOrder(order1);
+		matcher.processOrder(order2);
+		matcher.processOrder(order3);
+
+		Order buyOrder = new Order(4, 10, 10, Action.BUY, new Account(1, "Test"), new Timestamp(date.getTime()));
+		matcher.processOrder(buyOrder);
+		Order expectedOrder = new Order(20, 10, Action.SELL, null, null);
+		assertTrue("Agg sell list contains size 20 price 10", matcher.aggSellList.contains(expectedOrder));
+	}
+
+	@Test
+	void aggBuyListShouldReduce(){
+		Order order1 = new Order(1, 10, 10, Action.BUY, new Account(1, "Test"), new Timestamp(date.getTime()));
+		Order order2 = new Order(2, 10, 10, Action.BUY, new Account(1, "Test"), new Timestamp(date.getTime()));
+		Order order3 = new Order(3, 10, 10, Action.BUY, new Account(1, "Test"), new Timestamp(date.getTime()));
+
+		matcher.processOrder(order1);
+		matcher.processOrder(order2);
+		matcher.processOrder(order3);
+
+		Order sellOrder = new Order(4, 10, 10, Action.SELL, new Account(1, "Test"), new Timestamp(date.getTime()));
+		matcher.processOrder(sellOrder);
+		Order expectedOrder = new Order(20, 10, Action.BUY, null, null);
+		assertTrue("Agg buy list contains size 20 price 10", matcher.aggBuyList.contains(expectedOrder));
 	}
 
 	@Test
@@ -99,7 +133,7 @@ class MatchingEngineApplicationTests {
 		assertTrue("Buy  map is empty as it is consumed", matcher.buyMap.isEmpty());
 
 		Order expectedSellOrder = new Order(2, 9, 10, Action.SELL, sellAccount, globalTimestamp);
-		assertTrue("Sell list has size 5 left over at price 10", matcher.sellMap.containsValue(expectedSellOrder));
+		assertTrue("Sell list has size 5 left over at price 10", matcher.sellMap.contains(expectedSellOrder));
 		assertTrue("Buy list is empty", matcher.buyMap.isEmpty());
 		assertEquals("Buy sell has length of 1", 1, matcher.sellMap.size());
 		assertEquals("Trade list should have length 1", 1, matcher.tradeList.size());
@@ -112,16 +146,54 @@ class MatchingEngineApplicationTests {
 		Order order2 = new Order(2, 15, 10, Action.BUY, new Account(2, "Test"), new Timestamp(date.getTime()));
 		Order order3 = new Order(3, 13, 9, Action.BUY, new Account(3, "Test"), new Timestamp(date.getTime()));
 		Order order4 = new Order(4, 13, 9, Action.BUY, new Account(4, "Test"), new Timestamp(date.getTime()));
+		Order order5 = new Order(5, 20, 12, Action.BUY, new Account(5, "Test"), new Timestamp(date.getTime()));
 
-		HashMap<Account, Order> temporaryMap = new HashMap<>();
-		temporaryMap.put(order1.getAccount(), order1);
-		temporaryMap.put(order2.getAccount(), order2);
-		temporaryMap.put(order3.getAccount(), order3);
-		temporaryMap.put(order4.getAccount(), order4);
+		ArrayList<Order> temporaryMap = new ArrayList<>();
+		temporaryMap.add(order1);
+		temporaryMap.add(order2);
+		temporaryMap.add(order3);
+		temporaryMap.add(order4);
+		temporaryMap.add(order5);
+
+		ArrayList<Order> expectedList = new ArrayList<>();
+		Order expOrder1 = new Order(0,46, 9, Action.BUY, null, null);
+		Order expOrder2 = new Order(0,15, 10, Action.BUY, null, null);
+		Order expOrder3 = new Order(0,20, 12, Action.BUY, null, null);
+		expectedList.add(expOrder1);
+		expectedList.add(expOrder2);
+		expectedList.add(expOrder3);
 
 		ArrayList<Order> orders = matcher.aggregateMap(temporaryMap);
-		assertEquals("Agg Buy List should be of length 2", 2, orders.size());
+
+		//assertEquals("Agg Buy List should be of length 2", 2, orders.size());
+		assertTrue("Agg Buy list contains expected array list", orders.containsAll(expectedList));
 	}
+
+	@Test
+	void mapShouldAggregateTwo(){
+		Order order1 = new Order(1, 10, 5, Action.BUY, new Account(1, "Test"), new Timestamp(date.getTime()));
+		Order order2 = new Order(1, 10, 5, Action.BUY, new Account(2, "Test"), new Timestamp(date.getTime()));
+		Order order3 = new Order(1, 10, 5, Action.BUY, new Account(3, "Test"), new Timestamp(date.getTime()));
+		Order order4 = new Order(1, 10, 5, Action.BUY, new Account(4, "Test"), new Timestamp(date.getTime()));
+		Order order5 = new Order(1, 10, 5, Action.BUY, new Account(5, "Test"), new Timestamp(date.getTime()));
+
+		ArrayList<Order> temporaryMap = new ArrayList<>();
+		temporaryMap.add(order1);
+		temporaryMap.add(order2);
+		temporaryMap.add(order3);
+		temporaryMap.add(order4);
+		temporaryMap.add(order5);
+
+		ArrayList<Order> expectedList = new ArrayList<>();
+		Order expOrder1 = new Order(0,50, 5, Action.BUY, null, null);
+
+		expectedList.add(expOrder1);
+
+		ArrayList<Order> orders = matcher.aggregateMap(temporaryMap);
+		assertEquals("Agg Buy List should be of length 1", 1, orders.size());
+		assertTrue("Agg Buy list contains expected array list", orders.containsAll(expectedList));
+	}
+
 
 	@Test
 	void mapShouldCumulate(){

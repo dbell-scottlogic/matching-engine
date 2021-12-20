@@ -1,10 +1,20 @@
 package com.scottlogic.matchingengine.entities;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+
 public class CumulateOrder {
 
     //private int id; may add this in as an incrementer on DB side
+    @NotNull
+    @Positive
     private int size;
+
+    @NotNull
+    @Positive
     private int price;
+
+    @NotNull
     private Action action;
 
 

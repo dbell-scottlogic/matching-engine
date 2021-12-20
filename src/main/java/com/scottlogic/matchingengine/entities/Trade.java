@@ -1,14 +1,28 @@
 package com.scottlogic.matchingengine.entities;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.sql.Timestamp;
 
 public class Trade {
 
+    @NotNull
+    @Positive
     private int price;
+
+    @NotNull
     private Order buyOrder;
+
+    @NotNull
     private Order sellOrder;
+
+    @NotNull
     private Account buyAccount;
+
+    @NotNull
     private Account sellAccount;
+
+    @NotNull
     private Timestamp timestamp;
 
     public Trade(int price,Order buyOrder, Order sellOrder, Account buyAccount, Account sellAccount, Timestamp timestamp) {
@@ -73,12 +87,12 @@ public class Trade {
     @Override
     public String toString() {
         return "Trade{" +
-                "price=" + price +
-                ", buyOrder=" + buyOrder +
-                ", sellOrder=" + sellOrder +
-                ", buyAccount=" + buyAccount +
-                ", sellAccount=" + sellAccount +
-                ", timestamp=" + timestamp +
+                "price=" + price + '\n' +
+                ", buyOrder=" + buyOrder + '\n' +
+                ", sellOrder=" + sellOrder + '\n' +
+                ", buyAccount=" + buyAccount +'\n' +
+                ", sellAccount=" + sellAccount +'\n' +
+                ", timestamp=" + timestamp +'\n' +
                 '}';
 
     }

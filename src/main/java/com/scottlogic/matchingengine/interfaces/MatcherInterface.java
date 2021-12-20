@@ -19,10 +19,12 @@ public interface MatcherInterface {
 
     /**
      * Takes map, aggregates it, and returns as an array list
-     * @param orderList the map being passed in
+     * @param map the map being passed in
      * @return ArrayList of type Order
      */
-    ArrayList<Order> aggregateMap(HashMap<Account, Order> orderList);
+     ArrayList<Order> aggregateMap(ArrayList<Order> map);
+
+
 
     /**
      * First orders the list by price ascending, then cumulates each order and
@@ -39,7 +41,14 @@ public interface MatcherInterface {
      * @param entry the entry within the map the order is being compared too
      * @return boolean
      */
-    Boolean evaluateOperator(Order order, Map.Entry<Account, Order> entry);
+    Boolean evaluateOperator(Order order, Order entry);
+
+    /**
+     * Partially matches orders if there is an overlap
+     * @param entry
+     * @param order
+     */
+    void partiallyMatch(Order entry, Order order);
 
     /**
      * Creates and trade from order and entry, adds it to list. Then removes the consumed entry from its map.

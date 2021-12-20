@@ -1,36 +1,57 @@
 package com.scottlogic.matchingengine.entities;
 
-public class Account {
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import java.io.Serializable;
 
-    private int id;
-    private String name;
+public class Account implements Serializable {
 
-    public Account(int id, String name) {
-        this.id = id;
-        this.name = name;
+    @NotNull
+    @Positive
+    private int accountId;
+
+    @NotNull
+    private String username;
+
+    @NotNull
+    private String token;
+
+    public Account(){}
+
+    public Account(int accountId, String username) {
+        this.accountId = accountId;
+        this.username = username;
     }
 
-    public int getId() {
-        return id;
+    public int getAccountId() {
+        return accountId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setAccountId(int id) {
+        this.accountId = id;
     }
 
-    public String getName() {
-        return name;
+    public String getUsername() {
+        return username;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     @Override
     public String toString() {
         return "Account{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
+                "id=" + accountId +
+                ", username='" + username + '\'' +
                 '}';
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getToken() {
+        return token;
     }
 }

@@ -1,10 +1,13 @@
 package com.scottlogic.matchingengine.controllers;
 
 import com.scottlogic.matchingengine.Matcher;
+import com.scottlogic.matchingengine.dao.AccountJdbcDAO;
 import com.scottlogic.matchingengine.entities.Account;
 import com.scottlogic.matchingengine.entities.Order;
 import com.scottlogic.matchingengine.entities.Trade;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -16,6 +19,12 @@ public class MatcherRestController {
 
     public Matcher matcher = new Matcher();
     public AuthenticationController authenticationController = new AuthenticationController(matcher);
+
+    @Autowired
+    JdbcTemplate jdbcTemplate = new JdbcTemplate();
+
+    @Autowired
+    AccountJdbcDAO accountJdbcDAO = new AccountJdbcDAO(jdbcTemplate);
 
     @GetMapping(value = "/aggregates")
     public HashMap<String, ArrayList<Order>> aggregates() {
@@ -31,31 +40,40 @@ public class MatcherRestController {
     }
 
     @GetMapping(value = "/privateorderbook")
-    public HashMap<String, ArrayList<Order>> getPrivateOrderBook(@RequestParam(value = "id") int id){
-        Account account = authenticationController.accounts.get(id);
-        System.out.println(account);
-        ArrayList<Order> buyList = new ArrayList<>();
-        ArrayList<Order> sellList = new ArrayList<>();
+    public HashMap<String, ArrayList<Order>> getPrivateOrderBook(@RequestParam(value = "id") String username){
 
-        //Maybes store orders in the accounts section
+        if (accountJdbcDAO.read(username).isPresent()) {
+            System.out.println("Is present");
+            Account account = accountJdbcDAO.read(username).get();
+            System.out.println(account);
+            ArrayList<Order> buyList = new ArrayList<>();
+            ArrayList<Order> sellList = new ArrayList<>();
 
-        for (Order entry: matcher.buyMap) {
-            if (entry.getOrderId() == account.getAccountId()){
-                buyList.add(entry);
-                System.out.println("Adding to buy list: " + entry);
+            //Maybes store orders in the accounts section
+
+            for (Order entry : matcher.buyList) {
+                if (entry.getAccount().getAccountId() == account.getAccountId()) {
+                    buyList.add(entry);
+                    System.out.println("Adding to buy list: " + entry);
+                }
             }
-        }
 
-        for (Order entry: matcher.sellMap) {
-            if (entry.getOrderId() == account.getAccountId()){
-                buyList.add(entry);
+            for (Order entry : matcher.sellList) {
+                if (entry.getAccount().getAccountId()  == account.getAccountId()) {
+                    buyList.add(entry);
+                }
             }
-        }
 
-        HashMap<String, ArrayList<Order>> response = new HashMap<>();
-        response.put("privateBuyList", buyList);
-        response.put("privateSellList", sellList);
-        return response;
+            HashMap<String, ArrayList<Order>> response = new HashMap<>();
+            response.put("privateBuyList", buyList);
+            response.put("privateSellList", sellList);
+            return response;
+        } else {
+            HashMap<String, ArrayList<Order>> response = new HashMap<>();
+            response.put("privateBuyList", null);
+            response.put("privateSellList", null);
+            return  response;
+        }
     }
 
     @PostMapping(value = "/neworder")

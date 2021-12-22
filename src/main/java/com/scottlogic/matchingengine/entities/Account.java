@@ -14,6 +14,9 @@ public class Account implements Serializable {
     private String username;
 
     @NotNull
+    private String password;
+
+    @NotNull
     private String token;
 
     public Account(){}
@@ -39,11 +42,14 @@ public class Account implements Serializable {
         this.username = username;
     }
 
+
     @Override
     public String toString() {
         return "Account{" +
-                "id=" + accountId +
+                "accountId=" + accountId +
                 ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", token='" + token + '\'' +
                 '}';
     }
 
@@ -53,5 +59,9 @@ public class Account implements Serializable {
 
     public String getToken() {
         return token;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

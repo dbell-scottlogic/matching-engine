@@ -3,30 +3,30 @@ package com.scottlogic.matchingengine.controllers;
 import com.scottlogic.matchingengine.Matcher;
 import com.scottlogic.matchingengine.dao.AccountJdbcDAO;
 import com.scottlogic.matchingengine.entities.Account;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
+import com.scottlogic.matchingengine.models.AuthenticationRequest;
+import com.scottlogic.matchingengine.models.AuthenticationResponse;
+import com.scottlogic.matchingengine.security.CustomUserDetailsService;
+import com.scottlogic.matchingengine.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
-import java.util.HashMap;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
-import io.jsonwebtoken.Jwts;
-
-import javax.crypto.SecretKey;
 
 @RestController
-@RequestMapping("/auth")
-public class AuthenticationController {
+@RequestMapping("")
+public class AuthenticationController  {
 
     Matcher matcher;
-    public HashMap<String, Account> accounts = new HashMap<String, Account>();
 
     @Autowired
     JdbcTemplate jdbcTemplate = new JdbcTemplate();
@@ -34,12 +34,16 @@ public class AuthenticationController {
     @Autowired
     AccountJdbcDAO accountJdbcDAO = new AccountJdbcDAO(jdbcTemplate);
 
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService = new CustomUserDetailsService();
+
+    @Autowired
+    JwtUtil jwtUtil = new JwtUtil();
 
     public AuthenticationController(){
-        Account acc1 = new Account(1, "David");
-        Account acc2 = new Account(2, "Steve");
-        accounts.put(acc1.getUsername(), acc1);
-        accounts.put(acc2.getUsername(), acc2);
     }
 
     public AuthenticationController(Matcher matcher) {
@@ -59,8 +63,8 @@ public class AuthenticationController {
     }
 
     @GetMapping("/read")
-    public Account read(@RequestParam int id){
-        Optional<Account> optionalAccount = accountJdbcDAO.read(id);
+    public Account read(@RequestParam String username){
+        Optional<Account> optionalAccount = accountJdbcDAO.read(username);
         if (optionalAccount.isPresent()){
             return optionalAccount.get();
         } else {
@@ -70,52 +74,26 @@ public class AuthenticationController {
 
     }
 
-    @PostMapping("/login")
-    public Account login(@RequestParam String username, String password){
+    @RequestMapping(value = "authenticate", method = RequestMethod.POST)
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception{
 
-        //H2 database check here
+        try {
+            //String hashedDatabasePassword = new String(accountJdbcDAO.getHashedPassword(authenticationRequest.getUsername()), StandardCharsets.UTF_8);
 
-        if (accounts.containsKey(username)) {
-            String token = getJWTToken(username);
-            Account account = accounts.get(username);
-            account.setUsername(username);
-            account.setToken(token);
-            return account;
-        } else {
-            Account account = new Account();
-            account.setUsername(null);
-            account.setAccountId(0);
-            account.setToken(null);
-            return account;
+          authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
+        } catch (BadCredentialsException e){
+            throw new Exception("Bad Credentials");
         }
 
+        final UserDetails userDetails = customUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+
+        final String jwt = jwtUtil.generateToken(userDetails);
+
+        return ResponseEntity.ok(new AuthenticationResponse(jwt));
+
     }
 
-    private String getJWTToken(String username) {
 
-        SecretKey key = Keys.hmacShaKeyFor(new byte[512]);
-        List<GrantedAuthority> grantedAuthorityList = AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_USER");
-        String token = Jwts
-                .builder()
-                .setId("customJWT")
-                .setSubject(username)
-                .claim("authorities", grantedAuthorityList.stream()
-                        .map(GrantedAuthority::getAuthority)
-                        .collect(Collectors.toList()))
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 600000))
-                .signWith(SignatureAlgorithm.HS512,
-                        key).compact();
-
-        return "Bearer " + token;
     }
 
-    //Token based approach
-    //Login
-    //Logout
-    //New Account
-    //Modify account
 
-
-
-}

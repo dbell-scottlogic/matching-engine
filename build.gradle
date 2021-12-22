@@ -20,10 +20,10 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.9'
     implementation 'org.json:json:20210307'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
-    implementation 'org.jetbrains:annotations:20.1.0'
+    implementation 'org.jetbrains:annotations:22.0.0'
     implementation 'javax.validation:validation-api:2.0.1.Final'
     implementation 'org.springframework:spring-context:5.3.13'
-    implementation 'org.springframework.security:spring-security-core:5.5.1'
+    implementation 'org.springframework.security:spring-security-core:5.5.0'
     implementation 'commons-io:commons-io:2.11.0'
     implementation 'org.webjars.npm:jsonwebtoken:8.5.1'
     implementation 'io.jsonwebtoken:jjwt-root:0.11.2'
@@ -32,6 +32,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-test:2.6.1'
     implementation 'org.springframework:spring-jdbc:5.3.13'
     implementation 'com.h2database:h2:2.0.202'
+    implementation 'org.springframework.security:spring-security-config:5.5.1'
+    implementation 'org.springframework.data:spring-data-elasticsearch:4.3.0'
+    implementation 'org.springframework.security:spring-security-web:5.5.1'
 }
 
 test {

@@ -9,7 +9,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
-
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +25,8 @@ public class AccountJdbcDAO implements DAO<Account> {
         Account account = new Account();
         account.setAccountId(rs.getInt("accountId"));
         account.setUsername(rs.getString("username"));
-
+        account.setPassword(rs.getString("password"));
+        account.setToken(rs.getString("token"));
         return account;
     };
 
@@ -38,7 +40,7 @@ public class AccountJdbcDAO implements DAO<Account> {
 
     @Override
     public List<Account> list() {
-        String sql = "SELECT accountId, username from accounts";
+        String sql = "SELECT * from accounts";
         log.info("Listing accounts");
         return jdbcTemplate.query(sql, rowMapper);
     }
@@ -51,21 +53,21 @@ public class AccountJdbcDAO implements DAO<Account> {
     }
 
     @Override
-    public Optional<Account> read(int id) {
-        String sql = "SELECT * FROM ACCOUNTS WHERE accountId = ?;";
+    public Optional<Account> read(String username) {
+        String sql = "SELECT * FROM ACCOUNTS WHERE username = ?;";
         Account account = null;
         try{
-            account = jdbcTemplate.queryForObject(sql, new Object[]{id}, rowMapper);
+            account = jdbcTemplate.queryForObject(sql, new Object[]{username}, rowMapper);
         } catch (DataAccessException ex){
-            log.info("Account not found: " + id);
+            log.info("Account not found: " + username);
         }
         return Optional.ofNullable(account);
     }
 
     @Override
-    public void update(Account account, int id) {
-        String sql = "UPDATE ACCOUNTS SET username =? WHERE accountId = ?;";
-        int update = jdbcTemplate.update(sql, account.getUsername(), id);
+    public void update(Account account, String username){
+        String sql = "UPDATE ACCOUNTS SET username = ?, token = ? WHERE username = ?;";
+        int update = jdbcTemplate.update(sql, account.getUsername(), account.getToken(), username);
 
         if (update == 1){
             log.info("Account updated for username: " + account.getUsername());
@@ -77,4 +79,9 @@ public class AccountJdbcDAO implements DAO<Account> {
         String sql = "DELETE FROM ACCOUNTS WHERE accountId = ?;";
         jdbcTemplate.update(sql);
     }
+
+   public Account getHashedPassword(String username) throws NoSuchAlgorithmException {
+        String sql = "SELECT * FROM ACCOUNTS where username = ?;";
+       return jdbcTemplate.queryForObject(sql, new Object[]{username}, rowMapper);
+   }
 }

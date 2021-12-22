@@ -1,2 +1,2 @@
-INSERT INTO accounts(username) VALUES ('David97');
-INSERT INTO accounts(username) VALUES ('SteveJobs');
+INSERT INTO accounts(username, password, token) VALUES ('David97', HASH('SHA-512', 'pass'), NULL);
+INSERT INTO accounts(username, password, token) VALUES ('SteveJobs', HASH('SHA-512', '123'), NULL);

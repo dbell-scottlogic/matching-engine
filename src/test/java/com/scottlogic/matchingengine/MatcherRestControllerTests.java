@@ -79,7 +79,7 @@ public class MatcherRestControllerTests {
     @Test
     public void privateOrderBookReturnsEmpty(){
 
-        HashMap<String, ArrayList<Order>> privateOrderBook = matcherRestController.getPrivateOrderBook(1);
+        HashMap<String, ArrayList<Order>> privateOrderBook = matcherRestController.getPrivateOrderBook("FakeUsername");
         assertTrue("private Buy List is empty", privateOrderBook.get("privateBuyList").isEmpty());
         assertTrue("private Buy List is empty", privateOrderBook.get("privateSellList").isEmpty());
     }
@@ -92,7 +92,7 @@ public class MatcherRestControllerTests {
         matcherRestController.matcher.processOrder(order1);
         matcherRestController.matcher.processOrder(order2);
 
-        HashMap<String, ArrayList<Order>> privateOrderBook = matcherRestController.getPrivateOrderBook(1);
+        HashMap<String, ArrayList<Order>> privateOrderBook = matcherRestController.getPrivateOrderBook("FakeUsername");
         System.out.println(privateOrderBook.get("privateBuyList").size());
         assertEquals("private Buy List is of size 2", 2, privateOrderBook.get("privateBuyList").size());
         assertTrue("private Buy List is empty", privateOrderBook.get("privateSellList").isEmpty());    }

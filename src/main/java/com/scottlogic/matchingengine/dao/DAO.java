@@ -8,9 +8,9 @@ public interface DAO<T> {
 
      void create(T t);
 
-     Optional<T> read(int id);
+     Optional<T> read(String id);
 
-     void update(T t, int id);
+     void update(T t, String id);
 
      void delete(int id);
 }

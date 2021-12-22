@@ -4,12 +4,9 @@ import com.scottlogic.matchingengine.entities.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-
-
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 
 import static org.springframework.test.util.AssertionErrors.assertEquals;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
@@ -38,13 +35,13 @@ class MatchingEngineApplicationTests {
 	void buyOrderIntoBuyList(){
 		Order order = new Order(1, 20, 10, Action.BUY, buyAccount, new Timestamp(date.getTime()));
 		matcher.processOrder(order);
-		assertEquals("buyList is of length 1", 1, matcher.buyMap.size());
+		assertEquals("buyList is of length 1", 1, matcher.buyList.size());
 	}
 	@Test
 	void sellOrderIntoSellList(){
 		Order order = new Order(1, 20, 10, Action.SELL, sellAccount, new Timestamp(date.getTime()));
 		matcher.processOrder(order);
-		assertEquals("sellList is of length 1", 1,matcher.sellMap.size());
+		assertEquals("sellList is of length 1", 1,matcher.sellList.size());
 	}
 
 	@Test
@@ -83,9 +80,9 @@ class MatchingEngineApplicationTests {
 		matcher.processOrder(sellOrder);
 		matcher.processOrder(buyOrder);
 		Order expectedBuyOrder = new Order(1, 5, 10, Action.BUY, buyAccount, new Timestamp(date.getTime()));
-		assertTrue("Buy list has size 5 left over at price 10", matcher.buyMap.contains(expectedBuyOrder));
-		assertTrue("Sell list is empty", matcher.sellMap.isEmpty());
-		assertEquals("Buy map has length of 1", 1, matcher.buyMap.size());
+		assertTrue("Buy list has size 5 left over at price 10", matcher.buyList.contains(expectedBuyOrder));
+		assertTrue("Sell list is empty", matcher.sellList.isEmpty());
+		assertEquals("Buy map has length of 1", 1, matcher.buyList.size());
 		assertEquals("Trade list should have length 1", 1, matcher.tradeList.size());
 
 	}
@@ -130,12 +127,12 @@ class MatchingEngineApplicationTests {
 
 		matcher.processOrder(sellOrder);
 		matcher.processOrder(buyOrder);
-		assertTrue("Buy  map is empty as it is consumed", matcher.buyMap.isEmpty());
+		assertTrue("Buy  map is empty as it is consumed", matcher.buyList.isEmpty());
 
 		Order expectedSellOrder = new Order(2, 9, 10, Action.SELL, sellAccount, globalTimestamp);
-		assertTrue("Sell list has size 5 left over at price 10", matcher.sellMap.contains(expectedSellOrder));
-		assertTrue("Buy list is empty", matcher.buyMap.isEmpty());
-		assertEquals("Buy sell has length of 1", 1, matcher.sellMap.size());
+		assertTrue("Sell list has size 5 left over at price 10", matcher.sellList.contains(expectedSellOrder));
+		assertTrue("Buy list is empty", matcher.buyList.isEmpty());
+		assertEquals("Buy sell has length of 1", 1, matcher.sellList.size());
 		assertEquals("Trade list should have length 1", 1, matcher.tradeList.size());
 	}
 

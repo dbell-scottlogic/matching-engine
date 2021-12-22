@@ -11,8 +11,8 @@ import java.util.*;
 public class Matcher implements MatcherInterface {
 
 
-    public ArrayList<Order> buyMap = new ArrayList<>();
-    public ArrayList<Order> sellMap = new ArrayList<>();
+    public ArrayList<Order> buyList = new ArrayList<>();
+    public ArrayList<Order> sellList = new ArrayList<>();
     public ArrayList<Trade> tradeList = new ArrayList<>();
 
     public ArrayList<Order> aggBuyList = new ArrayList<>();
@@ -25,8 +25,8 @@ public class Matcher implements MatcherInterface {
     @Override
     public void processOrder(Order order) {
 
-        ArrayList<Order> opposingMap = (order.getAction().equals(Action.BUY) ? sellMap : buyMap);
-        ArrayList<Order> map = (order.getAction().equals(Action.BUY) ? buyMap : sellMap);
+        ArrayList<Order> opposingMap = (order.getAction().equals(Action.BUY) ? sellList : buyList);
+        ArrayList<Order> map = (order.getAction().equals(Action.BUY) ? buyList : sellList);
 
         if (opposingMap.isEmpty()) {
             map.add(order);
@@ -38,7 +38,7 @@ public class Matcher implements MatcherInterface {
                 int size = opposingMap.get(i).getSize() - order.getSize();
                 if (size > 0) {
 
-                    if (order.getAction().equals(Action.BUY) && sellMap.isEmpty()) {
+                    if (order.getAction().equals(Action.BUY) && sellList.isEmpty()) {
 
                         addToList(order);
                     } else {
@@ -48,7 +48,7 @@ public class Matcher implements MatcherInterface {
 
                 } else if (size < 0) {
 
-                    if (order.getAction().equals(Action.SELL) && buyMap.isEmpty()) {
+                    if (order.getAction().equals(Action.SELL) && buyList.isEmpty()) {
                         addToList(order);
 
                     } else {
@@ -72,8 +72,8 @@ public class Matcher implements MatcherInterface {
         //The buy and sell maps must have a deep copy made to avoid modifications
         //made when the aggregator runs. Using SerializationUtils
 
-        aggBuyList = aggregateMap(SerializationUtils.clone(buyMap));
-        aggSellList = aggregateMap(SerializationUtils.clone(sellMap));
+        aggBuyList = aggregateMap(SerializationUtils.clone(buyList));
+        aggSellList = aggregateMap(SerializationUtils.clone(sellList));
 
         if (aggBuyList.size() > 0) {
             cumulatedBuyList = cumulateList(aggBuyList);
@@ -88,17 +88,17 @@ public class Matcher implements MatcherInterface {
 
     public void addToList(Order order) {
         if (order.getAction().equals(Action.BUY)) {
-            buyMap.add(order);
+            buyList.add(order);
         } else {
-            sellMap.add(order);
+            sellList.add(order);
         }
     }
 
     @Override
     public void partiallyMatch(Order entry, Order order) {
 
-        ArrayList<Order> map = (order.getAction().equals(Action.BUY) ? buyMap : sellMap);
-        ArrayList<Order> opposingMap = (order.getAction().equals(Action.BUY) ? sellMap : buyMap);
+        ArrayList<Order> map = (order.getAction().equals(Action.BUY) ? buyList : sellList);
+        ArrayList<Order> opposingMap = (order.getAction().equals(Action.BUY) ? sellList : buyList);
 
         Order buyOrder;
         Order sellOrder;
@@ -133,7 +133,7 @@ public class Matcher implements MatcherInterface {
 
     @Override
     public void match(Order order, Order entry) {
-        ArrayList<Order> entryMap = (entry.getAction().equals(Action.BUY) ? buyMap : sellMap);
+        ArrayList<Order> entryMap = (entry.getAction().equals(Action.BUY) ? buyList : sellList);
 
         Trade trade = new Trade(
                 order.getPrice(),

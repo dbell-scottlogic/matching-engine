@@ -5,6 +5,9 @@ import com.scottlogic.matchingengine.dao.AccountJdbcDAO;
 import com.scottlogic.matchingengine.entities.Account;
 import com.scottlogic.matchingengine.entities.Order;
 import com.scottlogic.matchingengine.entities.Trade;
+import com.scottlogic.matchingengine.models.AuthenticationRequest;
+import com.scottlogic.matchingengine.util.JwtUtil;
+import org.apache.tomcat.util.http.parser.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,6 +22,8 @@ public class MatcherRestController {
 
     public Matcher matcher = new Matcher();
     public AuthenticationController authenticationController = new AuthenticationController(matcher);
+    @Autowired
+    JwtUtil jwtUtil = new JwtUtil();
 
     @Autowired
     JdbcTemplate jdbcTemplate = new JdbcTemplate();
@@ -40,12 +45,15 @@ public class MatcherRestController {
     }
 
     @GetMapping(value = "/privateorderbook")
-    public HashMap<String, ArrayList<Order>> getPrivateOrderBook(@RequestParam(value = "id") String username){
+    public HashMap<String, ArrayList<Order>> getPrivateOrderBook(@RequestHeader("Authorization") String jwt){
+
+
+        //Determine the account here
+        String username = jwtUtil.extractUsername(jwt.substring(7));
 
         if (accountJdbcDAO.read(username).isPresent()) {
-            System.out.println("Is present");
+
             Account account = accountJdbcDAO.read(username).get();
-            System.out.println(account);
             ArrayList<Order> buyList = new ArrayList<>();
             ArrayList<Order> sellList = new ArrayList<>();
 
@@ -76,9 +84,15 @@ public class MatcherRestController {
         }
     }
 
-    @PostMapping(value = "/neworder")
+    @RequestMapping(value = "/neworder", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    public HashMap<String, ArrayList<Order>> createOrder(@RequestBody Order order) {
+    public HashMap<String, ArrayList<Order>> createOrder(@RequestHeader("Authorization") String jwt, @RequestBody Order order) {
+        //Remove any pre-defined account
+        order.setAccount(null);
+
+        //Determine the account here
+        String username = jwtUtil.extractUsername(jwt.substring(7));
+        order.setAccount(accountJdbcDAO.read(username).get());
 
         matcher.processOrder(order);
         HashMap<String, ArrayList<Order>> response = new HashMap<>();

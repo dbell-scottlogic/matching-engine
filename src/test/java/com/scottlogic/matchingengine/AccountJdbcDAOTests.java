@@ -11,6 +11,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.util.Base64;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 public class AccountJdbcDAOTests {
@@ -24,9 +27,16 @@ public class AccountJdbcDAOTests {
 
     @Test
     public void shouldReturnHash() throws NoSuchAlgorithmException {
-        Account account = accountJdbcDAO.getHashedPassword("David97");
-        System.out.println(account.toString());
+        byte[] data = accountJdbcDAO.getHashedPassword("David97");
+        String base64 = Base64.getEncoder().encodeToString(data);
+        System.out.println(base64);
+       // System.out.println(new String(data, StandardCharsets.UTF_8));
 
+    }
+
+    @Test
+    public void passwordShouldMatch() throws NoSuchAlgorithmException {
+        assertTrue(accountJdbcDAO.isMatched("David97", "pass"));
     }
 
 }

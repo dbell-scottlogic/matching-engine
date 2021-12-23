@@ -16,15 +16,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("")
-public class AuthenticationController  {
+public class AuthenticationController {
 
     Matcher matcher;
 
@@ -43,7 +40,7 @@ public class AuthenticationController  {
     @Autowired
     JwtUtil jwtUtil = new JwtUtil();
 
-    public AuthenticationController(){
+    public AuthenticationController() {
     }
 
     public AuthenticationController(Matcher matcher) {
@@ -51,49 +48,41 @@ public class AuthenticationController  {
     }
 
     @GetMapping("/list")
-    public List<Account> list(){
+    public List<Account> list() {
         return accountJdbcDAO.list();
     }
 
     @GetMapping("/create")
-    public void create(@RequestParam String username){
+    public void create(@RequestParam String username) {
         Account account = new Account();
         account.setUsername(username);
         accountJdbcDAO.create(account);
     }
 
     @GetMapping("/read")
-    public Account read(@RequestParam String username){
+    public Account read(@RequestParam String username) {
         Optional<Account> optionalAccount = accountJdbcDAO.read(username);
-        if (optionalAccount.isPresent()){
-            return optionalAccount.get();
-        } else {
-            Account nullAccount = new Account();
-            return nullAccount;
-        }
 
+        // Need alternative to this - dont want to return an empty account
+        return optionalAccount.orElseGet(Account::new);
     }
 
     @RequestMapping(value = "authenticate", method = RequestMethod.POST)
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception{
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
 
         try {
-            //String hashedDatabasePassword = new String(accountJdbcDAO.getHashedPassword(authenticationRequest.getUsername()), StandardCharsets.UTF_8);
-
-          authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
-        } catch (BadCredentialsException e){
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
+        } catch (BadCredentialsException e) {
             throw new Exception("Bad Credentials");
         }
 
         final UserDetails userDetails = customUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-
         final String jwt = jwtUtil.generateToken(userDetails);
-
         return ResponseEntity.ok(new AuthenticationResponse(jwt));
 
     }
 
 
-    }
+}
 
 

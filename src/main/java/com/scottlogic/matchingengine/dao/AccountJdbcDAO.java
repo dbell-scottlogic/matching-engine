@@ -9,6 +9,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -25,8 +27,6 @@ public class AccountJdbcDAO implements DAO<Account> {
         Account account = new Account();
         account.setAccountId(rs.getInt("accountId"));
         account.setUsername(rs.getString("username"));
-        account.setPassword(rs.getString("password"));
-        account.setToken(rs.getString("token"));
         return account;
     };
 
@@ -66,8 +66,8 @@ public class AccountJdbcDAO implements DAO<Account> {
 
     @Override
     public void update(Account account, String username){
-        String sql = "UPDATE ACCOUNTS SET username = ?, token = ? WHERE username = ?;";
-        int update = jdbcTemplate.update(sql, account.getUsername(), account.getToken(), username);
+        String sql = "UPDATE ACCOUNTS SET username = ? WHERE username = ?;";
+        int update = jdbcTemplate.update(sql, account.getUsername(), username);
 
         if (update == 1){
             log.info("Account updated for username: " + account.getUsername());
@@ -80,8 +80,24 @@ public class AccountJdbcDAO implements DAO<Account> {
         jdbcTemplate.update(sql);
     }
 
-   public Account getHashedPassword(String username) throws NoSuchAlgorithmException {
-        String sql = "SELECT * FROM ACCOUNTS where username = ?;";
-       return jdbcTemplate.queryForObject(sql, new Object[]{username}, rowMapper);
+   public byte[] getHashedPassword(String username) throws NoSuchAlgorithmException {
+        String sql = "SELECT password FROM ACCOUNTS where username = ?;";
+       return jdbcTemplate.queryForObject(sql, new Object[]{username}, byte[].class);
+   }
+
+   public Boolean isMatched(String username, String password) throws NoSuchAlgorithmException {
+       MessageDigest digest = MessageDigest.getInstance("SHA-512");
+       digest.reset();
+       digest.update(password.getBytes(StandardCharsets.UTF_8));
+       String hashedPassword = String.format("%0128x", new BigInteger(1, digest.digest()));
+
+       System.out.println(hashedPassword);
+
+       String sql = "SELECT username FROM ACCOUNTS where username = ? AND password = ?;";
+       String selectedUsername = jdbcTemplate.queryForObject(sql, new Object[]{username, hashedPassword}, String.class);
+
+        if (selectedUsername !=null && selectedUsername.equals(username)){
+            return true;
+        } else return false;
    }
 }

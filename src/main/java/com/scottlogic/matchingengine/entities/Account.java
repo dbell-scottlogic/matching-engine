@@ -13,12 +13,6 @@ public class Account implements Serializable {
     @NotNull
     private String username;
 
-    @NotNull
-    private String password;
-
-    @NotNull
-    private String token;
-
     public Account(){}
 
     public Account(int accountId, String username) {
@@ -48,20 +42,8 @@ public class Account implements Serializable {
         return "Account{" +
                 "accountId=" + accountId +
                 ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", token='" + token + '\'' +
                 '}';
     }
 
-    public void setToken(String token) {
-        this.token = token;
-    }
 
-    public String getToken() {
-        return token;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
 }

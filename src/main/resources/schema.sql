@@ -18,3 +18,21 @@ CREATE TABLE ORDERS (
     FOREIGN KEY (username) REFERENCES ACCOUNTS(username)
 
 );
+
+CREATE TABLE TRADES (
+
+    tradeId int NOT NULL AUTO_INCREMENT,
+    price int NOT NULL,
+    buyOrderId int NOT NULL,
+    sellOrderId int NOT NULL,
+    buyAccountUsername int NOT NULL,
+    sellAccountUsername int NOT NULL,
+    time TIMESTAMP NOT NULL,
+    CONSTRAINT pk_trades_tradeId PRIMARY KEY (tradeId),
+    FOREIGN KEY (buyOrderId) REFERENCES ORDERS(orderId),
+    FOREIGN KEY (sellOrderId) REFERENCES ORDERS(orderId),
+    FOREIGN KEY (buyAccountUsername) REFERENCES ACCOUNTS(username),
+    FOREIGN KEY (sellAccountUsername) REFERENCES ACCOUNTS(username)
+
+
+);

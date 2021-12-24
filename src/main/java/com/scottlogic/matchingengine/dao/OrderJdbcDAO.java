@@ -36,9 +36,8 @@ public class OrderJdbcDAO implements DAO<Order>{
     };
 
     public OrderJdbcDAO(JdbcTemplate jdbcTemplate) {
-
         this.jdbcTemplate = jdbcTemplate;
-         this.accountJdbcDAO = new AccountJdbcDAO(jdbcTemplate);
+        this.accountJdbcDAO = new AccountJdbcDAO(jdbcTemplate);
     }
 
     public OrderJdbcDAO() {

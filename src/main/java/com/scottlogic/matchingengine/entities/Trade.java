@@ -5,6 +5,8 @@ import javax.validation.constraints.Positive;
 import java.sql.Timestamp;
 
 public class Trade {
+    @NotNull
+    private int tradeId;
 
     @NotNull
     @Positive
@@ -25,7 +27,8 @@ public class Trade {
     @NotNull
     private Timestamp timestamp;
 
-    public Trade(int price,Order buyOrder, Order sellOrder, Account buyAccount, Account sellAccount, Timestamp timestamp) {
+    public Trade(int tradeId, int price,Order buyOrder, Order sellOrder, Account buyAccount, Account sellAccount, Timestamp timestamp) {
+        this.tradeId = tradeId;
         this.price = price;
         this.buyOrder = buyOrder;
         this.sellOrder = sellOrder;
@@ -83,26 +86,32 @@ public class Trade {
         this.sellOrder = sellOrder;
     }
 
+    public int getTradeId() {
+        return tradeId;
+    }
+
+    public void setTradeId(int tradeId) {
+        this.tradeId = tradeId;
+    }
 
     @Override
     public String toString() {
         return "Trade{" +
-                "price=" + price + '\n' +
-                ", buyOrder=" + buyOrder + '\n' +
-                ", sellOrder=" + sellOrder + '\n' +
-                ", buyAccount=" + buyAccount +'\n' +
-                ", sellAccount=" + sellAccount +'\n' +
-                ", timestamp=" + timestamp +'\n' +
+                "tradeId=" + tradeId +
+                ", price=" + price +
+                ", buyOrder=" + buyOrder +
+                ", sellOrder=" + sellOrder +
+                ", buyAccount=" + buyAccount +
+                ", sellAccount=" + sellAccount +
+                ", timestamp=" + timestamp +
                 '}';
-
     }
-
-
 
     @Override
     public boolean equals(Object obj) {
         Trade trade = (Trade) obj;
         return trade.price == this.price
+                && trade.tradeId == this.tradeId
                 && trade.buyOrder == this.buyOrder
                 && trade.sellOrder == this.sellOrder
                 && trade.buyAccount == this.buyAccount

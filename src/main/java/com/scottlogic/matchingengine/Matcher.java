@@ -127,7 +127,7 @@ public class Matcher implements MatcherInterface {
         //Add to trade list the consumed Trade and Order
         int finalTradeSize = (Math.min(order.getSize(), entry.getSize()));
 
-        Trade trade = new Trade(finalTradeSize, originalBuyOrder, originalSellOrder, buyOrder.getAccount(), sellOrder.getAccount(), new Timestamp(new Date().getTime()));
+        Trade trade = new Trade(1,finalTradeSize, originalBuyOrder, originalSellOrder, buyOrder.getAccount(), sellOrder.getAccount(), new Timestamp(new Date().getTime()));
         tradeList.add(trade);
     }
 
@@ -135,7 +135,7 @@ public class Matcher implements MatcherInterface {
     public void match(Order order, Order entry) {
         ArrayList<Order> entryMap = (entry.getAction().equals(Action.BUY) ? buyList : sellList);
 
-        Trade trade = new Trade(
+        Trade trade = new Trade(1,
                 order.getPrice(),
                 entry,
                 order,

@@ -35,6 +35,7 @@ dependencies {
     implementation 'org.springframework.security:spring-security-config:5.5.1'
     implementation 'org.springframework.data:spring-data-elasticsearch:4.3.0'
     implementation 'org.springframework.security:spring-security-web:5.5.1'
+    implementation 'com.palantir.gradle.docker:gradle-docker:0.31.0'
 }
 
 test {

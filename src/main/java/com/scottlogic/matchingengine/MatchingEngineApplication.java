@@ -12,6 +12,7 @@ public class MatchingEngineApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(MatchingEngineApplication.class, args);
+
 		try {
 			org.h2.tools.Server server = org.h2.tools.Server.createTcpServer().start();
 		} catch (SQLException e) {

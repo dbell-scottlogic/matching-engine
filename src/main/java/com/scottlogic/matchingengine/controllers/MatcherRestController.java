@@ -49,6 +49,7 @@ public class MatcherRestController {
 
         //Determine the account here
         String username = jwtUtil.extractUsername(jwt.substring(7));
+        System.out.println(username);
 
         if (accountJdbcDAO.read(username).isPresent()) {
 

@@ -23,6 +23,7 @@ public class AccountJdbcDAO implements DAO<Account> {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
     RowMapper<Account> rowMapper = (rs, rowNum) -> {
         Account account = new Account();
         account.setAccountId(rs.getInt("accountId"));

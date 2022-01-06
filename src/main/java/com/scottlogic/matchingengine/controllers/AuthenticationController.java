@@ -47,6 +47,12 @@ public class AuthenticationController {
         this.matcher = matcher;
     }
 
+
+    @GetMapping("/test")
+    public String test(){
+        return "Test Works";
+    }
+
     @GetMapping("/list")
     public List<Account> list() {
         return accountJdbcDAO.list();

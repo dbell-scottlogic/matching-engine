@@ -1,7 +1,8 @@
 package com.scottlogic.matchingengine.controllers;
 
-import com.scottlogic.matchingengine.Matcher;
+import com.scottlogic.matchingengine.matcher.Matcher;
 import com.scottlogic.matchingengine.dao.AccountJdbcDAO;
+import com.scottlogic.matchingengine.dao.TradeJdbcDAO;
 import com.scottlogic.matchingengine.entities.Account;
 import com.scottlogic.matchingengine.models.AuthenticationRequest;
 import com.scottlogic.matchingengine.models.AuthenticationResponse;
@@ -32,6 +33,9 @@ public class AuthenticationController {
     AccountJdbcDAO accountJdbcDAO = new AccountJdbcDAO(jdbcTemplate);
 
     @Autowired
+    TradeJdbcDAO tradeJdbcDAO = new TradeJdbcDAO(jdbcTemplate);
+
+    @Autowired
     private AuthenticationManager authenticationManager;
 
     @Autowired
@@ -47,10 +51,15 @@ public class AuthenticationController {
         this.matcher = matcher;
     }
 
-
     @GetMapping("/test")
     public String test(){
-        return "Test Works";
+        return "Hello World";
+    }
+
+
+    @GetMapping("/getusername")
+    public String getUsername(@RequestHeader String jwt){
+        return jwtUtil.extractUsername(jwt.substring(7));
     }
 
     @GetMapping("/list")

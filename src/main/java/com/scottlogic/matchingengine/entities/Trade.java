@@ -13,30 +13,33 @@ public class Trade {
     private int price;
 
     @NotNull
-    private Order buyOrder;
+    private int buyOrderId;
 
     @NotNull
-    private Order sellOrder;
+    private int sellOrderId;
 
     @NotNull
-    private Account buyAccount;
+    private String buyAccountUsername;
 
     @NotNull
-    private Account sellAccount;
+    private String sellAccountUsername;
 
     @NotNull
     private Timestamp timestamp;
 
-    public Trade(int tradeId, int price,Order buyOrder, Order sellOrder, Account buyAccount, Account sellAccount, Timestamp timestamp) {
+    public Trade(int tradeId, int price,int buyOrderId, int sellOrderId, String buyAccountUsername, String sellAccountUsername, Timestamp timestamp) {
         this.tradeId = tradeId;
         this.price = price;
-        this.buyOrder = buyOrder;
-        this.sellOrder = sellOrder;
-        this.buyAccount = buyAccount;
-        this.sellAccount = sellAccount;
+        this.buyOrderId = buyOrderId;
+        this.sellOrderId = sellOrderId;
+        this.buyAccountUsername = buyAccountUsername;
+        this.sellAccountUsername = sellAccountUsername;
         this.timestamp = timestamp;
     }
 
+    public Trade(){
+
+    }
 
     public int getPrice() {
         return price;
@@ -46,21 +49,7 @@ public class Trade {
         this.price = price;
     }
 
-    public Account getBuyAccount() {
-        return buyAccount;
-    }
 
-    public void setBuyAccount(Account buyAccount) {
-        this.buyAccount = buyAccount;
-    }
-
-    public Account getSellAccount() {
-        return sellAccount;
-    }
-
-    public void setSellAccount(Account sellAccount) {
-        this.sellAccount = sellAccount;
-    }
 
     public Timestamp getTimestamp() {
         return timestamp;
@@ -70,20 +59,20 @@ public class Trade {
         this.timestamp = timestamp;
     }
 
-    public Order getBuyOrder() {
-        return buyOrder;
+    public int getBuyOrderId() {
+        return buyOrderId;
     }
 
-    public void setBuyOrder(Order buyOrder) {
-        this.buyOrder = buyOrder;
+    public void setBuyOrderId(int buyOrderId) {
+        this.buyOrderId = buyOrderId;
     }
 
-    public Order getSellOrder() {
-        return sellOrder;
+    public int getSellOrderId() {
+        return sellOrderId;
     }
 
-    public void setSellOrder(Order sellOrder) {
-        this.sellOrder = sellOrder;
+    public void setSellOrderId(int sellOrderId) {
+        this.sellOrderId = sellOrderId;
     }
 
     public int getTradeId() {
@@ -94,15 +83,31 @@ public class Trade {
         this.tradeId = tradeId;
     }
 
+    public String getBuyAccountUsername() {
+        return buyAccountUsername;
+    }
+
+    public void setBuyAccountUsername(String buyAccountUsername) {
+        this.buyAccountUsername = buyAccountUsername;
+    }
+
+    public String getSellAccountUsername() {
+        return sellAccountUsername;
+    }
+
+    public void setSellAccountUsername(String sellAccountUsername) {
+        this.sellAccountUsername = sellAccountUsername;
+    }
+
     @Override
     public String toString() {
         return "Trade{" +
                 "tradeId=" + tradeId +
                 ", price=" + price +
-                ", buyOrder=" + buyOrder +
-                ", sellOrder=" + sellOrder +
-                ", buyAccount=" + buyAccount +
-                ", sellAccount=" + sellAccount +
+                ", buyOrderId=" + buyOrderId +
+                ", sellOrderId=" + sellOrderId +
+                ", buyAccountUsername=" + buyAccountUsername +
+                ", sellAccountUsername=" + sellAccountUsername +
                 ", timestamp=" + timestamp +
                 '}';
     }
@@ -112,10 +117,10 @@ public class Trade {
         Trade trade = (Trade) obj;
         return trade.price == this.price
                 && trade.tradeId == this.tradeId
-                && trade.buyOrder == this.buyOrder
-                && trade.sellOrder == this.sellOrder
-                && trade.buyAccount == this.buyAccount
-                && trade.sellAccount == this.sellAccount
+                && trade.buyOrderId == this.buyOrderId
+                && trade.sellOrderId == this.sellOrderId
+                && trade.buyAccountUsername == this.buyAccountUsername
+                && trade.sellAccountUsername == this.sellAccountUsername
                 && trade.timestamp == this.timestamp;
     }
 }

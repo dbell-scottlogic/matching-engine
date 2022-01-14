@@ -24,13 +24,6 @@ public class AccountJdbcDAO implements DAO<Account> {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    RowMapper<Account> rowMapper = (rs, rowNum) -> {
-        Account account = new Account();
-        account.setAccountId(rs.getInt("accountId"));
-        account.setUsername(rs.getString("username"));
-        return account;
-    };
-
     public AccountJdbcDAO(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -38,6 +31,13 @@ public class AccountJdbcDAO implements DAO<Account> {
     public AccountJdbcDAO() {
 
     }
+
+    RowMapper<Account> rowMapper = (rs, rowNum) -> {
+        Account account = new Account();
+        account.setAccountId(rs.getInt("accountId"));
+        account.setUsername(rs.getString("username"));
+        return account;
+    };
 
     @Override
     public List<Account> list() {

@@ -1,6 +1,5 @@
 package com.scottlogic.matchingengine.dao;
 
-import com.scottlogic.matchingengine.entities.Account;
 import com.scottlogic.matchingengine.entities.Action;
 import com.scottlogic.matchingengine.entities.Order;
 import org.slf4j.Logger;
@@ -9,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -40,9 +38,7 @@ public class OrderJdbcDAO implements DAO<Order>{
         this.accountJdbcDAO = new AccountJdbcDAO(jdbcTemplate);
     }
 
-    public OrderJdbcDAO() {
-
-    }
+    public OrderJdbcDAO() {}
 
     @Override
     public List<Order> list() {
@@ -61,6 +57,11 @@ public class OrderJdbcDAO implements DAO<Order>{
         return Optional.empty();
     }
 
+    public List<Order> listByUsername(String username){
+        String sql = "SELECT * FROM ORDERS WHERE username = ?;";
+        return jdbcTemplate.query(sql, new Object[]{username}, rowMapper);
+    }
+
     @Override
     public void update(Order order, String id) {
 
@@ -69,5 +70,15 @@ public class OrderJdbcDAO implements DAO<Order>{
     @Override
     public void delete(int id) {
 
+    }
+
+    public List<Order> getTopBuy() {
+        String sql = "SELECT * FROM ORDERS WHERE `action` = 'BUY' ORDER BY price ASC LIMIT 0,10;";
+        return jdbcTemplate.query(sql, rowMapper);
+    }
+
+    public List<Order> getTopSell() {
+        String sql = "SELECT * FROM ORDERS WHERE `action` = 'SELL' ORDER BY price DESC LIMIT 0,10;";
+        return jdbcTemplate.query(sql, rowMapper);
     }
 }

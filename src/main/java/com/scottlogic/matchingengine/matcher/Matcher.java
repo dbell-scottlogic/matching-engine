@@ -1,9 +1,15 @@
-package com.scottlogic.matchingengine;
+package com.scottlogic.matchingengine.matcher;
 
 import com.google.gson.Gson;
+import com.scottlogic.matchingengine.dao.AccountJdbcDAO;
+import com.scottlogic.matchingengine.dao.OrderJdbcDAO;
+import com.scottlogic.matchingengine.dao.TradeJdbcDAO;
 import com.scottlogic.matchingengine.interfaces.MatcherInterface;
 import com.scottlogic.matchingengine.entities.*;
 import org.apache.commons.lang3.SerializationUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -13,7 +19,7 @@ public class Matcher implements MatcherInterface {
 
     public ArrayList<Order> buyList = new ArrayList<>();
     public ArrayList<Order> sellList = new ArrayList<>();
-    public ArrayList<Trade> tradeList = new ArrayList<>();
+   // public ArrayList<Trade> tradeList = new ArrayList<>();
 
     public ArrayList<Order> aggBuyList = new ArrayList<>();
     public ArrayList<Order> aggSellList = new ArrayList<>();
@@ -21,6 +27,15 @@ public class Matcher implements MatcherInterface {
     public ArrayList<CumulateOrder> cumulatedBuyList = new ArrayList<>();
     public ArrayList<CumulateOrder> cumulatedSellList = new ArrayList<>();
 
+
+    @Autowired
+    JdbcTemplate jdbcTemplate = new JdbcTemplate();
+
+    @Autowired
+    TradeJdbcDAO tradeJdbcDAO = new TradeJdbcDAO(jdbcTemplate);
+
+    @Autowired
+    OrderJdbcDAO orderJdbcDAO = new OrderJdbcDAO(jdbcTemplate);
 
     @Override
     public void processOrder(Order order) {
@@ -72,8 +87,8 @@ public class Matcher implements MatcherInterface {
         //The buy and sell maps must have a deep copy made to avoid modifications
         //made when the aggregator runs. Using SerializationUtils
 
-        aggBuyList = aggregateMap(SerializationUtils.clone(buyList));
-        aggSellList = aggregateMap(SerializationUtils.clone(sellList));
+//        aggBuyList = aggregateMap(SerializationUtils.clone(buyList));
+//        aggSellList = aggregateMap(SerializationUtils.clone(sellList));
 
         if (aggBuyList.size() > 0) {
             cumulatedBuyList = cumulateList(aggBuyList);
@@ -89,8 +104,10 @@ public class Matcher implements MatcherInterface {
     public void addToList(Order order) {
         if (order.getAction().equals(Action.BUY)) {
             buyList.add(order);
+            orderJdbcDAO.create(order);
         } else {
             sellList.add(order);
+            orderJdbcDAO.create(order);
         }
     }
 
@@ -127,8 +144,9 @@ public class Matcher implements MatcherInterface {
         //Add to trade list the consumed Trade and Order
         int finalTradeSize = (Math.min(order.getSize(), entry.getSize()));
 
-        Trade trade = new Trade(1,finalTradeSize, originalBuyOrder, originalSellOrder, buyOrder.getAccount(), sellOrder.getAccount(), new Timestamp(new Date().getTime()));
-        tradeList.add(trade);
+        Trade trade = new Trade(1,finalTradeSize, originalBuyOrder.getOrderId(), originalSellOrder.getOrderId(), buyOrder.getAccount().getUsername(), sellOrder.getAccount().getUsername(), new Timestamp(new Date().getTime()));
+        tradeJdbcDAO.create(trade);
+        //tradeList.add(trade);
     }
 
     @Override
@@ -137,13 +155,12 @@ public class Matcher implements MatcherInterface {
 
         Trade trade = new Trade(1,
                 order.getPrice(),
-                entry,
-                order,
-                entry.getAccount(),
-                order.getAccount(),
+                entry.getOrderId(),
+                order.getOrderId(),
+                entry.getAccount().getUsername(),
+                order.getAccount().getUsername(),
                 new Timestamp(new Date().getTime()));
-        tradeList.add(trade);
-
+        tradeJdbcDAO.create(trade);
         entryMap.remove(entry);
 
     }
